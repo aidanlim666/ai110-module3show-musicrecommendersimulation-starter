@@ -17,17 +17,14 @@ Replace this paragraph with your own summary of what your version does.
 
 ## How The System Works
 
-Explain your design in plain language.
-
-Some prompts to answer:
-
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
-
-You can include a simple diagram or bullet list if helpful.
+Every song has genre, mood, energy, tempo_bpm, valence, danceability, and acousticness, plus artist. The recipe spends weight on genre, mood, energy and acousticness, becase those four best distinguish songs from each other.
+UserProfile stores favorite_genre, favorite_mood, target_energy, and likes_acoustic (boolean). 
+Recommender computes scores based on four criteria:
+- +2 if song's genre exactly matches user's favorite (+1 if genres are related but not exact match)
+- +1 if mood matches
+- up to +1.5 based on how close the song's energy is to the user's target_energy
+- +0.5 if the song's acousticness is the same as the user's likes_acoustic preference
+Songs are chosen by scoring every song in the catalog with the above formula, then sorting the list from highest to lowest, and the top k songs are returend as recommendations.
 
 ---
 
@@ -68,15 +65,36 @@ You can add more tests in `tests/test_recommender.py`.
 
 ## Sample Recommendation Output
 
-Paste a sample of your recommender's output here as a text block so a reader can see what it produces:
+Output of `python -m src.main` for the default pop/happy/energy=0.8 profile:
 
 ```
-# e.g.:
-# User profile: genre=indie, mood=chill, energy=low
-# Recommendations:
-#   1. ...
-#   2. ...
-#   3. ...
+User profile: genre=pop, mood=happy, energy=0.8
+============================================================
+
+1. Sunrise City  (score: 4.47)
+   Neon Echo - pop, happy
+     - genre match: pop (+2.0)
+     - mood match: happy (+1.0)
+     - energy 0.82 is close to target 0.80 (+1.47)
+
+2. Rooftop Lights  (score: 3.44)
+   Indigo Parade - indie pop, happy
+     - related genre: indie pop ~ pop (+1.0)
+     - mood match: happy (+1.0)
+     - energy 0.76 is close to target 0.80 (+1.44)
+
+3. Gym Hero  (score: 3.30)
+   Max Pulse - pop, intense
+     - genre match: pop (+2.0)
+     - energy 0.93 is close to target 0.80 (+1.30)
+
+4. Night Drive Loop  (score: 1.42)
+   Neon Echo - synthwave, moody
+     - energy 0.75 is close to target 0.80 (+1.42)
+
+5. Storm Runner  (score: 1.33)
+   Voltline - rock, intense
+     - energy 0.91 is close to target 0.80 (+1.33)
 ```
 
 **Screenshot or video** *(optional)*: <!-- Insert a screenshot or demo video link here -->
